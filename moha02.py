@@ -18,7 +18,7 @@ from os import system
 from datetime import datetime
 
 
-os.system('termux-open-url https://t.me/m_oha0_2b')
+
 os.system('termux-tts-speak "Welcome to MOHA EL SHELFAWI ZERO TWO TOOL"')
 
 
